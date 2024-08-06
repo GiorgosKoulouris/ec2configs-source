@@ -35,7 +35,7 @@ def routeTable(jsonFile, tfFile, configName):
       }\n\
     }\n'
 
-    for route in config["routes"]:
+    for route in routes:
       configText = configText + '\
       resource "aws_route" "' + route["name"] + '" {\n\
       route_table_id  = aws_route_table.' + tableName + '.id\n'
@@ -45,45 +45,44 @@ def routeTable(jsonFile, tfFile, configName):
       else:
         configText = configText + 'destination_ipv6_cidr_block = "' + route["dest"] + '"\n'
 
-      match route["targetType"]:
-        case "Transit GW":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'transit_gateway_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'transit_gateway_id = aws_ec2_transit_gateway.' + route["targetName"] + '.id\n}\n'
+      if (route["targetType"] == "Transit GW"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'transit_gateway_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'transit_gateway_id = aws_ec2_transit_gateway.' + route["targetName"] + '.id\n}\n'
 
-        case "VP GW":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'gateway_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'gateway_id = aws_vpn_gateway.' + route["targetName"] + '.id\n}\n'
+      elif (route["targetType"] ==  "VP GW"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'gateway_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'gateway_id = aws_vpn_gateway.' + route["targetName"] + '.id\n}\n'
 
-        case "Peering connection":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'vpc_peering_connection_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'vpc_peering_connection_id = aws_vpc_peering_connection.' + route["targetName"] + '.id\n}\n'
+      elif (route["targetType"] ==   "Peering connection"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'vpc_peering_connection_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'vpc_peering_connection_id = aws_vpc_peering_connection.' + route["targetName"] + '.id\n}\n'
 
-        case "Egress GW":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'egress_only_gateway_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'egress_only_gateway_id = aws_egress_only_internet_gateway.' + route["targetName"] + '.id\n}\n'
+      elif (route["targetType"] ==   "Egress GW"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'egress_only_gateway_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'egress_only_gateway_id = aws_egress_only_internet_gateway.' + route["targetName"] + '.id\n}\n'
 
-        case "NAT GW":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'nat_gateway_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'nat_gateway_id = aws_nat_gateway.' + route["targetName"] + '.id\n}\n'
+      elif (route["targetType"] ==   "NAT GW"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'nat_gateway_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'nat_gateway_id = aws_nat_gateway.' + route["targetName"] + '.id\n}\n'
 
-        case "Network Interface":
-          configText = configText + 'network_interface_id = "' + route["targetId"] + '"\n}\n'
+      elif (route["targetType"] ==   "Network Interface"):
+        configText = configText + 'network_interface_id = "' + route["targetId"] + '"\n}\n'
 
-        case "Internet GW":
-          if (route["targetName"] == "-- Other --"):
-            configText = configText + 'gateway_id = "' + route["targetId"] + '"\n}\n'
-          else:
-            configText = configText + 'gateway_id = aws_internet_gateway.' + attachedVpcName + '-igw.id\n}\n'
+      elif (route["targetType"] ==   "Internet GW"):
+        if (route["targetName"] == "-- Other --"):
+          configText = configText + 'gateway_id = "' + route["targetId"] + '"\n}\n'
+        else:
+          configText = configText + 'gateway_id = aws_internet_gateway.' + attachedVpcName + '-igw.id\n}\n'
 
   configText = configText + '\n'
 
