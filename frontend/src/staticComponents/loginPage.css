@@ -1,0 +1,30 @@
+@import '../global.css';
+
+.login-root {
+    margin-top: 25px;
+    display: grid;
+    width: 20%;
+    margin-left: 40%;
+}
+
+.login-title {
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--text-color);
+    justify-self: center;
+    margin-bottom: 0;
+}
+.login-logo {
+    justify-self: center;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.image-container {
+    padding-top: 0;
+    padding-left: 90px;
+}
+
+.login-button {
+    margin-left: 60px;
+    margin-right: 60px;
+}

@@ -1,0 +1,24 @@
+@import '../../global.css';
+
+.pl-modal-root {
+    /* margin-top: -50px;
+    margin-left: 20%;
+    width: 60%;
+    background-color: rgb(27, 30, 33); */
+}
+
+.pl-modal-log {
+    color: var(--text-color);
+}
+
+.pl-modal-button-section {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    margin-top: 25px;
+    margin-left: 35%;
+    margin-right: 35%;
+}
+
+.pl-modal-button {
+    margin-top: 10px;
+}

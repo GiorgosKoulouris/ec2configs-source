@@ -1,0 +1,8 @@
+build/
+node_modules/
+
+.gitignore
+Dockerfile
+README.md
+docker-compose.yml
+image-*.sh

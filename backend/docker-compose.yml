@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  ec2c-backend-app :
+    container_name: ec2c-backend-app
+    image: ec2c-backend-app
+    hostname: ec2c-backend-app
+    volumes:
+      - '${HOST_DATA_ROOT_FOLDER}:/ec2c/data'
+      - '${HOST_DATA_LOGS_FOLDER}:/ec2c/logs'
+      - '${KUBE_CONFIG_FOLDER}:/kube'
+    ports:
+      - "30002:30002"
+    restart: unless-stopped
+    environment:
+      ENV: docker # DO NOT MODIFY
+      TZ: Europe/Athens
+      AZ_CLIENT_ID: ${AZ_CLIENT_ID}
+      AZ_TENANT_ID: ${AZ_TENANT_ID}
+      AZ_ADMIN_GRP_ID: ${AZ_ADMIN_GRP_ID}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}

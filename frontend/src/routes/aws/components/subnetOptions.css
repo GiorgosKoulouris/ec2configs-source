@@ -1,0 +1,26 @@
+@import '../../../global.css';
+@import '../../../layoutHelper.css';
+
+.table-subnet-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding-bottom: 15px;
+}
+.table-subnet-value-block {
+    margin-top: 5px;
+}
+.table-subnet-value-key {
+    margin-bottom: 10px;
+}
+.table-subnet-value-value {
+    margin: 0;
+    justify-content: center;
+    color: var(--text-color);
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1em;
+    border: 1px;
+    border-style: solid;
+    background-color: var(--bg-color);
+    border-radius: 5px;
+    color: var(--text-color);
+}

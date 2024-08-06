@@ -1,0 +1,88 @@
+@import './global.css';
+
+.dropDownMenu {
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1em;
+}
+
+.action-button:hover {
+    color: var(--border-color);
+    background-color: var(--bg-color);
+    transition: 0.4s;
+}
+
+.action-button {
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1em;
+    display: inline-block;
+    position: relative;
+    transition: 0.4s;
+}
+
+.action-button span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.4s;
+}
+
+.action-button:hover span {
+    padding-right: 12px;
+}
+
+.action-button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+select.blackhole {
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    background-color: var(--error-bg-color);
+    color: var(--text-color);
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1em;
+}
+
+input.blackhole {
+    margin: 0;
+    justify-content: center;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1em;
+    border: 1px;
+    border-style: solid;
+    background-color: var(--error-bg-color);
+    border-radius: 5px;
+    color: var(--text-color);
+}
+
+button.blackhole {
+    background-color: var(--error-bg-color);
+    color: var(--text-color);
+}
+
+li.blackhole {
+    background-color: var(--error-bg-color);
+    border-color: var(--error-main-color);
+    color: var(--text-color);
+}
+
+.error-modal-title {
+    color: var(--text-color);
+    margin-top: 0;
+}
+
+.error-modal-text {
+    color: var(--text-color);
+    margin-bottom: 0;
+}

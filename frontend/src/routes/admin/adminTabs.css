@@ -1,0 +1,48 @@
+@import '../../global.css';
+@import '../../layoutHelper.css';
+
+.admin-tabs-root {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 25px;
+  margin-right: 25px;
+  padding-top: 0;
+  padding-bottom: 0;
+  grid-column: span 4;
+  display: block;
+  justify-content: center;
+  align-content: center;
+  cursor: default;
+}
+
+ul.admin-tabs-nav {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+ul.admin-tabs-nav li {
+  font-family: 'Hanken Grotesk', sans-serif;
+  color: var(--text-color);
+  transition: all 0.4s;
+  border-top-left-radius: 14px;
+  margin-top: 0;
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+
+ul.admin-tabs-nav li:nth-child(2) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 14px;
+}
+
+ul.admin-tabs-nav li.active {
+  transition: all 0.4s;
+  margin-top: 0;
+  border-style: solid;
+  background-color: var(--bg-color-light);
+  border-color: var(--border-color);
+  border-width: 1px 1px 0 1px;
+}

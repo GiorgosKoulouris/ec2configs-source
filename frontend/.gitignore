@@ -1,0 +1,8 @@
+/build
+/node_modules
+
+.DS_Store
+.env
+image-*.sh
+
+package-lock.json

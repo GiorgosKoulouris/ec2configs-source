@@ -1,0 +1,40 @@
+:root {
+    --bg-color: rgba(3, 21, 38, 0.848);
+    --bg-color-light: rgba(5, 32, 57, 0.988);
+    --bg-color-solid: rgba(3, 21, 38, 0.927);
+    --border-color: rgb(39, 162, 245);
+    --text-color: rgb(184, 222, 249);
+    --shadow-settings: 1px 2px 8px rgba(63, 188, 242, 0.547);
+    --table-hover-color: rgba(38, 101, 161, 0.848);
+    --error-main-color: rgb(252, 44, 44);
+    --error-bg-color: rgba(110, 9, 18, 0.848);
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.divider-line {
+    border-top: 1px solid var(--text-color);
+    margin-top: 25px;
+    margin-bottom: 25px;
+    width: 80%;
+    margin-left: 10%;
+    justify-self: center;
+}
+
+body {
+    height: 100%;
+}
+
+html {
+    height: 100%
+}
+
+#root {
+    height: 100%;
+}
+
+.body-root {
+    height: 100%;
+}

@@ -1,0 +1,59 @@
+@import '../../../global.css';
+@import '../../../layoutHelper.css';
+
+.tabs-root {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 15px;
+  padding-top: 0;
+  padding-bottom: 0;
+  grid-column: span 4;
+  display: block;
+  justify-content: center;
+  align-content: center;
+  cursor: default;
+}
+
+ul.tabs-nav {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-color);
+  /* padding: 0; */
+}
+
+ul.tabs-nav li {
+  font-family: 'Hanken Grotesk', sans-serif;
+  color: var(--text-color);
+  transition: all 0.4s;
+  margin-top: 0;
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+
+ul.tabs-nav li:nth-child(1) {
+  font-family: 'Hanken Grotesk', sans-serif;
+  color: var(--text-color);
+  transition: all 0.4s;
+  border-top-left-radius: 14px;
+  margin-top: 0;
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+
+ul.tabs-nav li:nth-child(4) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 14px;
+}
+
+ul.tabs-nav li.active {
+  transition: all 0.4s;
+  margin-top: 0;
+  border-style: solid;
+  background-color: var(--bg-color-light);
+  border-color: var(--border-color);
+  border-width: 1px 1px 0 1px;
+}

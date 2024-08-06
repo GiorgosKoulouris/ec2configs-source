@@ -1,0 +1,14 @@
+.config-section-root {
+  margin-top: 15px;
+  height: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
+  /* display: grid;
+  grid-template-columns: repeat(5, 1fr); */
+  color: var(--text-color);
+  text-align: center;
+}
+
+.config-refresh-button {
+  margin-top: 20px;
+}

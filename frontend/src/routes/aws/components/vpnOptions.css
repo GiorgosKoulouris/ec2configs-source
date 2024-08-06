@@ -1,0 +1,94 @@
+@import '../../../global.css';
+
+.vpn-table-root {
+  display: grid;
+  grid-column: span 4;
+}
+
+.vpn-container {
+  display: inline-table;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vpn-tr {
+  margin-top: 25px;
+  margin-bottom: 45px;
+  padding-top: 15px;
+  border-top: 2px var(--text-color) solid;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vpn-gnrl-section-title {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  grid-column: span 1;
+}
+
+.vpn-gnrl-container {
+  grid-column: span 2;
+  margin-bottom: 15px;
+}
+
+.vpn-tunnel-section {
+  padding-left: 20px;
+  padding-right: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vpn-tunnel-title {
+  margin: 0;
+  margin-top: 10px;
+  grid-column: span 2;
+}
+
+.vpn-phase-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.vpn-phase-title {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  grid-column: span 1;
+}
+
+.vpn-phase-row {
+  grid-column: span 1;
+  align-items: center;
+  margin-bottom: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vpn-phase-row:nth-child(odd) {
+  background-color: var(--bg-color-light);
+}
+
+.vpn-phase-row:hover {
+  background-color: var(--table-hover-color);
+  transition: all 0.4s;
+}
+
+.vpn-phase-row-label {
+  margin-right: 10px;
+}
+
+.vpn-phase-container-p2 {
+  margin-left: 10px;
+  height: fit-content;
+}
+
+.vpn-route-table-container {
+  grid-column: span 2;
+}
+
+.vpn-routes-table-title {
+  margin: 0;
+  margin-top: 20px;
+}
+
+.vpn-add-row-button {
+  margin-top: 20px;
+}

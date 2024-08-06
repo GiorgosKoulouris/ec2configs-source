@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  ec2c-database :
+    container_name: ec2c-database 
+    image: mariadb
+    hostname: ec2c-database 
+    networks:
+      dockernet:
+        ipv4_address: 10.20.20.152
+    volumes:
+      - './db/:/var/lib/mysql'
+      - './db-backups/:/dumps'
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+      
+networks:
+  dockernet:
+    name: dockernet
+    external: true

@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  ec2c-frontend-app:
+    container_name: ec2c-frontend-app
+    image: ec2c-frontend-app:latest
+    restart: unless-stopped
+    ports:
+      - 30001:80
+    environment:
+      ENV: docker # DO NOT MODIFY
+      TZ: Europe/Athens

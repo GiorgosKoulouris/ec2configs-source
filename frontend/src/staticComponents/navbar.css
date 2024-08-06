@@ -1,0 +1,12 @@
+@import '../global.css';
+
+.top-section-root {
+    background: var(--bg-color);
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.user-info-section {
+    align-self: center;
+    color: var(--text-color);
+}

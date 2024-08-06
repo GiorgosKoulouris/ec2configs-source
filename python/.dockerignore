@@ -1,0 +1,13 @@
+venv/
+*__pycache__/
+.env
+.gitignore
+
+kube/
+
+Dockerfile
+docker-compose.yml
+
+run-container.sh
+image-push-ecr.sh
+image-build.sh

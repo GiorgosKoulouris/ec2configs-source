@@ -1,0 +1,42 @@
+@import '../global.css';
+
+footer {
+    position: fixed;
+    bottom: 3px;
+    margin-left: 0.5%;
+    margin-right: 0.5%;
+    width: 99%;
+
+    display: grid;
+    justify-content: center;
+    justify-self: center;
+    background-color: var(--bg-color);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--border-color);
+    border-radius: 5px;
+}
+
+.footer {
+    grid-column: span 1;
+    margin: 6px;
+    color: var(--text-color);
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: .85em;
+}
+
+@media screen and (max-width: 600px) {
+    footer {
+        position: fixed;
+        bottom: 3px;
+        width: 96%;
+
+        display: flex;
+        justify-content: center;
+        background-color: var(--bg-color-solid);
+        border-width: 1px;
+        border-style: solid;
+        border-color: var(--border-color);
+        border-radius: 10px;
+    }
+}
