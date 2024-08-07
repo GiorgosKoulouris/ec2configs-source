@@ -278,7 +278,7 @@ export default class AzCreateConfig extends Component {
   render() {
     return (
       <div className='body-root'>
-        {this.state.shouldNavigate ? <Navigate replace to="/configs" /> : <></>}
+        {this.state.shouldNavigate ? <Navigate replace to="/" /> : <></>}
         {!this.state.isModal ? <Navbar userInfo={this.state.userInfo} /> : <></>}
         <div className='body'>
           <Sidebar az={this.state.az}

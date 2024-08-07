@@ -24,7 +24,7 @@ export class PageNotFound extends Component {
   render() {
     if (this.state.shouldNavigate) {
       return (
-        <Navigate to='/configs' />
+        <Navigate to='/' />
       )
     } else {
       return (
