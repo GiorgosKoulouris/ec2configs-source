@@ -6,6 +6,7 @@ import AwsCreateConfig from '../aws/AWSCreateConfig';
 import AzCreateConfig from '../az/AzCreateConfig';
 import UpdateShareModal from './UpdateShareModal';
 import PlanLogModal from './PlanLogModal';
+import ConfirmationModal from './ConfirmationModal';
 
 import { getUserName, getUserEmail, isUserAdmin, getMsalToken } from '../../helperFunctions/adFunctions';
 
@@ -53,6 +54,10 @@ export class MyConfigs extends Component {
         planLogText: "",
         canApply: false,
       },
+      confirmationModal: {
+        isOpen: false,
+        actionType: ''
+      },
       updateShareModalOpen: false,
       planLogModalOpen: false,
       selectedConfigUUID: "",
@@ -73,6 +78,8 @@ export class MyConfigs extends Component {
     this.closeErrorModal = this.closeErrorModal.bind(this);
     this.closeUpdateShareModal = this.closeUpdateShareModal.bind(this);
     this.closePlanLogModal = this.closePlanLogModal.bind(this);
+    this.openConfirmationModal = this.openConfirmationModal.bind(this);
+    this.closeConfirmationModal = this.closeConfirmationModal.bind(this);
 
     this.getConfigs();
   }
@@ -399,6 +406,25 @@ export class MyConfigs extends Component {
       })
   }
 
+  openConfirmationModal(params) {
+    this.setState({
+      confirmationModal: {
+        isOpen: true,
+        params: params
+      }
+    })
+  }
+
+  closeConfirmationModal(result) {
+    this.setState({
+      confirmationModal: {
+        isOpen: false,
+        actionType: 'actionType'
+      }
+    })
+    this.getConfigs();
+  }
+
   modifyConfig = async (e) => {
     let saveMethod = e.target.innerText;
     let rowIndex = e.target.parentElement.parentElement.rowIndex;
@@ -436,21 +462,24 @@ export class MyConfigs extends Component {
       } else if (saveMethod === "Delete") {
         title = "Deleting configuration"
       }
-      let loadingModal = {
-        title: title,
-        loadingModalOpen: true
-      }
-      this.setState({
-        loadingModal: loadingModal
-      })
-      let msalToken = getMsalToken();
-      axios.defaults.headers.common = {
-        'Authorization': `Bearer ${msalToken}`
-      };
-      const urlDelete = `${backendURL}/modify-config/`
-      await axios.post(urlDelete, params, { timeout: 90000 })
-        .then((res) => {
-          if (saveMethod === "Plan") {
+
+      if (saveMethod === "Delete" || saveMethod === "Destroy") {
+        this.openConfirmationModal(params);
+      } else {
+        let loadingModal = {
+          title: title,
+          loadingModalOpen: true
+        }
+        this.setState({
+          loadingModal: loadingModal
+        })
+        let msalToken = getMsalToken();
+        axios.defaults.headers.common = {
+          'Authorization': `Bearer ${msalToken}`
+        };
+        const urlDelete = `${backendURL}/modify-config/`
+        await axios.post(urlDelete, params, { timeout: 90000 })
+          .then((res) => {
             let canApply = false;
             if (ownerEmail === this.state.userInfo.email || permissions === "Full" || permissions === "Apply") {
               canApply = true;
@@ -467,55 +496,48 @@ export class MyConfigs extends Component {
                 provider: provider
               }
             })
-          } else {
-            this.setState({
-              loadingModal: {
-                loadingModalOpen: false
+          })
+          .catch((err) => {
+            if (err.code === "ECONNABORTED") {
+              let errorModal = {
+                errorModalOpen: true,
+                errorTitle: 'Action still pending',
+                errorMessage: 'Action may take some time. Please wait until the config is not in a "Pending" state.'
               }
-            })
-            this.getConfigs();
-          }
-        })
-        .catch((err) => {
-          if (err.code === "ECONNABORTED") {
-            let errorModal = {
-              errorModalOpen: true,
-              errorTitle: 'Action still pending',
-              errorMessage: 'Action may take some time. Please wait until the config is not in a "Pending" state.'
+              this.setState({
+                errorModal: errorModal,
+                loadingModal: {
+                  loadingModalOpen: false
+                }
+              })
+            } else if (err.code === "ERR_NETWORK") {
+              let errorModal = {
+                errorModalOpen: true,
+                errorTitle: "Backend server error",
+                errorMessage: "Failed to connect to backend. If the issue persists, contact the administrator of the app.",
+              }
+              this.setState({
+                errorModal: errorModal,
+                loadingModal: {
+                  loadingModalOpen: false
+                }
+              })
+            } else {
+              let errorModal = {
+                errorModalOpen: true,
+                errorTitle: err.response.data.error.title,
+                errorMessage: err.response.data.error.message,
+                errorID: err.response.data.error.errorID
+              }
+              this.setState({
+                errorModal: errorModal,
+                loadingModal: {
+                  loadingModalOpen: false
+                }
+              })
             }
-            this.setState({
-              errorModal: errorModal,
-              loadingModal: {
-                loadingModalOpen: false
-              }
-            })
-          } else if (err.code === "ERR_NETWORK") {
-            let errorModal = {
-              errorModalOpen: true,
-              errorTitle: "Backend server error",
-              errorMessage: "Failed to connect to backend. If the issue persists, contact the administrator of the app.",
-            }
-            this.setState({
-              errorModal: errorModal,
-              loadingModal: {
-                loadingModalOpen: false
-              }
-            })
-          } else {
-            let errorModal = {
-              errorModalOpen: true,
-              errorTitle: err.response.data.error.title,
-              errorMessage: err.response.data.error.message,
-              errorID: err.response.data.error.errorID
-            }
-            this.setState({
-              errorModal: errorModal,
-              loadingModal: {
-                loadingModalOpen: false
-              }
-            })
-          }
-        })
+          })
+      }
 
     } else {
       let errorModal = {
@@ -625,6 +647,16 @@ export class MyConfigs extends Component {
               <PlanLogModal
                 planLogModal={this.state.planLogModal}
                 closePlanLogModal={this.closePlanLogModal}
+                reloadConfigs={this.getConfigs} />
+            </Box>
+          </Fade>
+        </Modal>
+        <Modal open={this.state.confirmationModal.isOpen} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+          <Fade in={this.state.confirmationModal.isOpen}>
+            <Box sx={errorModalStyle}>
+              <ConfirmationModal
+                params={this.state.confirmationModal.params}
+                closeConfirmationModal={this.closeConfirmationModal}
                 reloadConfigs={this.getConfigs} />
             </Box>
           </Fade>

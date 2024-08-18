@@ -4,7 +4,7 @@ usage() {
     echo "Use this script to build the docker images with the proper naming and tags"
     echo
     echo "Options:"
-    echo "    --no-build      Does not build the image, only pushes it to UPLOAD_TO_ECR"
+    echo "    --no-build      Does not build the image, only pushes it to ECR"
     echo "    -h, --help      Prints this message"
     echo
 }
@@ -91,5 +91,3 @@ if [[ "$UPLOAD_TO_ECR" == 'true' && "$BUILD_FAILED" == 'false' ]]; then
     docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-frontend-app:$VERSION
 
 fi
-
-
