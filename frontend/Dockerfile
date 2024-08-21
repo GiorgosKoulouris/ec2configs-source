@@ -20,7 +20,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-LABEL maintainer="George Koulouris <gkoulouris@thecanopener.com>"
+LABEL maintainer="George Koulouris (gkoulouris@thecanopener.com)"
 LABEL version="1.0.0"
 LABEL project="EC2 Configs"
 

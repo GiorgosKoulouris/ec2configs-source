@@ -13,7 +13,7 @@ COPY --chown=node:node . .
 
 EXPOSE 30002
 
-LABEL maintainer="George Koulouris <gkoulouris@thecanopener.com>"
+LABEL maintainer="George Koulouris (gkoulouris@thecanopener.com)"
 LABEL version="1.0.0"
 LABEL project="EC2 Configs"
 
