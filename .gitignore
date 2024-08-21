@@ -9,3 +9,8 @@ notes.txt
 
 remoteUbuntu/
 kubernetes/
+
+data/configs
+data/logs
+data/providers/*/
+

@@ -51,7 +51,7 @@ install() {
 	npm init
 	print_line
 	echo "Installing node dependencies..."
-	npm install axios cors dotenv express kubernetes-client mysql passport passport-azure-ad uuid
+	npm install axios cors dotenv express @kubernetes/client-node mysql passport passport-azure-ad uuid
 }
 
 # Function to get version from the string

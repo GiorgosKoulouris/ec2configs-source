@@ -7,7 +7,7 @@ RUN mkdir -p /home/node/app/ && \
 
 WORKDIR /home/node/app
 
-RUN cd /home/node/app && npm install axios cors dotenv express kubernetes-client mysql passport passport-azure-ad uuid && chown -R node:node /home/node/app
+RUN cd /home/node/app && npm install axios cors dotenv express @kubernetes/client-node mysql passport passport-azure-ad uuid && chown -R node:node /home/node/app
 
 COPY --chown=node:node . .
 

@@ -3,8 +3,6 @@ venv/
 .env
 .gitignore
 
-kube/
-
 Dockerfile
 docker-compose.yml
 

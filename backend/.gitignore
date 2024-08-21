@@ -8,6 +8,4 @@ package*.json
 # env files
 .env
 
-data/configs
-data/logs
-data/providers/*/
+kubeDev

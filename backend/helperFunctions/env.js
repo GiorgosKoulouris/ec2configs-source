@@ -62,7 +62,7 @@ exports.getKubernetesConfigFile = () => {
     } else {
         folder = '/kube'
     }
-    const file = join(folder, 'config.json')
+    const file = join(folder, 'config')
     return file
 }
 exports.getKubernetesConfigJsonString = () => {
