@@ -8,8 +8,7 @@ RUN npm install @azure/msal-browser @azure/msal-react @emotion/react @emotion/st
 
 COPY . .
 
-RUN npm run build
-
+RUN GENERATE_SOURCEMAP=false && npm run build
 
 FROM nginx:1.26.1-alpine as production
 ENV NODE_ENV production
