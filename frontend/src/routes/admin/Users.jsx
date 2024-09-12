@@ -14,7 +14,7 @@ import { getUserEmail, getMsalToken } from '../../helperFunctions/adFunctions';
 
 import './adminTables.css';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class Users extends Component {
     constructor(props) {

@@ -90,6 +90,9 @@ if [[ "$UPLOAD_TO_ECR" == 'true' && "$BUILD_FAILED" == 'false' ]]; then
     docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-terraform-job:latest
     docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-terraform-job:$VERSION
 
+    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-terraform-job:latest
+    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-terraform-job:$VERSION
+
 fi
 
 

@@ -10,7 +10,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class UpdateShareModal extends Component {
     constructor(props) {

@@ -27,7 +27,7 @@ import './myConfigs.css';
 import '../../global.css';
 import { redirect } from 'react-router-dom';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export class MyConfigs extends Component {
   constructor(props) {

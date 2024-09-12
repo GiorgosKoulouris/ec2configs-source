@@ -13,7 +13,7 @@ import { getUserEmail, getMsalToken } from '../../helperFunctions/adFunctions';
 
 import './planLogModal.css';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class PlanLogModal extends Component {
     constructor(props) {

@@ -9,7 +9,7 @@ import Fade from '@mui/material/Fade';
 
 import { getMsalToken } from '../../../helperFunctions/adFunctions';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL
 
 export class Sidebar extends Component {
     constructor(props) {

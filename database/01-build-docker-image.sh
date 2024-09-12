@@ -4,7 +4,7 @@ usage() {
     echo "Use this script to build the docker images with the proper naming and tags"
     echo
     echo "Options:"
-    echo "    --push-only      Does not build the image, only pushes it to UPLOAD_TO_ECR"
+    echo "    --no-build      Does not build the image, only pushes it to ECR"
     echo "    -h, --help      Prints this message"
     echo
 }
@@ -20,7 +20,7 @@ for arg in "$@"; do
             usage
             exit 0
             ;;
-        --push-only)
+        --no-build)
             BUILD='false'
             UPLOAD_TO_ECR='true'
             BUILD_FAILED='false'
@@ -74,8 +74,8 @@ if [ "$BUILD" == 'true' ]; then
 
     BUILD_FAILED='false'
     echo "Building image..."
-    docker build -t "ec2c-backend-app:$VERSION" . && \
-    docker tag ec2c-backend-app:$VERSION ec2c-backend-app:latest || \
+    docker build -t "ec2c-database:$VERSION" . && \
+    docker tag ec2c-database:$VERSION ec2c-database:latest || \
     BUILD_FAILED='true'
 
 fi
@@ -84,13 +84,13 @@ if [[ "$UPLOAD_TO_ECR" == 'true' && "$BUILD_FAILED" == 'false' ]]; then
 
     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-    docker tag ec2c-backend-app:latest $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:latest
-    docker tag ec2c-backend-app:$VERSION $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:$VERSION
+    docker tag ec2c-database:latest $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:latest
+    docker tag ec2c-database:$VERSION $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:$VERSION
 
-    docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:latest
-    docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:$VERSION
+    docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:latest
+    docker push $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:$VERSION
 
-    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:latest
-    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-backend-app:$VERSION
+    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:latest
+    docker image remove --no-prune $AWS_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ec2c-database:$VERSION
 
 fi

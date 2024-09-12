@@ -69,3 +69,25 @@ exports.getKubernetesConfigJsonString = () => {
     const base64String = process.env.KUBE_CONF_B64;
     return base64String
 }
+exports.getKubernetesJobConfig = () => {
+    let appEnv = process.env.APP_ENV;
+    if (appEnv === 'kubernetes') {
+        const kubeJobConfig = {
+            serviceAccountName: process.env.KUBE_JOB_SA_NAME,
+            images: {
+                tf: process.env.KUBE_TF_IMAGE,
+                py: process.env.KUBE_PY_IMAGE
+            },
+            imagePullPolicy: process.env.KUBE_IMAGE_PULL_POLICY,
+            imagePullCreds: process.env.KUBE_IMAGE_PULL_CREDS,
+            poduserID: {
+                user: process.env.KUBE_PODUSERID_USER,
+                group: process.env.KUBE_PODUSERID_GROUP
+            },
+            appDataVolumeName: process.env.KUBE_APPDATA_VOL_NAME
+        }
+        return kubeJobConfig        
+    } else {
+        return {}
+    }
+}

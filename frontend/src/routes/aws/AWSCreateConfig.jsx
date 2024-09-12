@@ -35,7 +35,7 @@ import './components/sidebar.css';
 import '../../componentHelper.css';
 
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export class AWSCreateConfig extends Component {
   constructor(props) {

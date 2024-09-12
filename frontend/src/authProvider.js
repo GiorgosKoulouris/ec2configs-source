@@ -6,8 +6,8 @@ import { LogLevel } from "@azure/msal-browser";
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md
  */
 
-const clientID = process.env.REACT_APP_AZ_CLIENT_ID;
-const authority = process.env.REACT_APP_AZ_AUTHORITY
+const clientID = window.frontendConfig.REACT_APP_AZ_CLIENT_ID;
+const authority = window.frontendConfig.REACT_APP_AZ_AUTHORITY;
 
 export const msalConfig = {
     auth: {

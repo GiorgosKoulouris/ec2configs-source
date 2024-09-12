@@ -1,6 +1,7 @@
 require('dotenv').config();
 const getKubeFile = require('./env').getKubernetesConfigFile;
 const getAppEnvironment = require('./env').getAppEnvironment;
+const getKubernetesJobConfig = require('./env').getKubernetesJobConfig;
 
 const k8s = require('@kubernetes/client-node');
 
@@ -17,9 +18,9 @@ exports.KubernetesHelper = class {
 
     sleep = async (ms) => {
         return new Promise((resolve) => {
-          setTimeout(resolve, ms);
+            setTimeout(resolve, ms);
         });
-      }
+    }
 
     getApi = async () => {
         const kc = new k8s.KubeConfig();
@@ -63,17 +64,32 @@ exports.KubernetesHelper = class {
     }
 
     createTfJob = async (configUUID, action, namespace) => {
-        const jobName = `tf-job-${configUUID}-${action}`;
+        const kubeJobConfig = getKubernetesJobConfig();
+        const jobName = `ec2c-tf-job-${configUUID}-${action}`;
+        const serviceAccountName = kubeJobConfig.serviceAccountName;
         const containerName = `tf-container-${configUUID}-${action}`;
-        const image = "ec2c-terraform-job:latest";
-        const volumeName = "ec2c-configs-data";
-        const fsGroup = 20 // 1001 / 20
+        const imagePullCreds = kubeJobConfig.imagePullCreds;
+        const image = kubeJobConfig.images.tf;
+        const imagePullPolicy = kubeJobConfig.imagePullPolicy;
+        const volumeName = kubeJobConfig.appDataVolumeName;
+        const podUserID_User = parseInt(kubeJobConfig.poduserID.user);
+        const podUserID_Group = parseInt(kubeJobConfig.poduserID.group);
 
         let jobConfig = {
             "ttlSecondsAfterFinished": 300,
             "backoffLimit": 0,
             "template": {
                 "spec": {
+                    "serviceAccountName": serviceAccountName,
+                    "imagePullSecrets": [
+                        {
+                            "name": imagePullCreds
+                        }
+                    ],
+                    "securityContext": {
+                        "runAsUser": podUserID_User,
+                        "runAsGroup": podUserID_Group,
+                    },
                     "containers": [
                         {
                             "name": containerName,
@@ -82,17 +98,13 @@ exports.KubernetesHelper = class {
                                 configUUID,
                                 action
                             ],
-                            "imagePullPolicy": "Never",
+                            "imagePullPolicy": imagePullPolicy,
                             "volumeMounts": [
                                 {
                                     "name": volumeName,
                                     "mountPath": "/configs"
                                 }
-                            ],
-                            "securityContext": {
-                                "fsGroup": fsGroup,
-                                "allowPrivilegeEscalation": true
-                            }
+                            ]
                         }
                     ],
                     "volumes": [
@@ -121,7 +133,14 @@ exports.KubernetesHelper = class {
 
         try {
             try {
-                const delRes = await k8sBatchApi.deleteNamespacedJob(jobName, namespace)
+                const delRes = await k8sBatchApi.deleteNamespacedJob(
+                    jobName,
+                    namespace,
+                    undefined,
+                    undefined,
+                    2,
+                    undefined,
+                    'Foreground')
                 await this.sleep(2000);
             } catch (error) {
                 console.log(`No jobs named ${jobName}. Proceeding...`)
@@ -156,11 +175,16 @@ exports.KubernetesHelper = class {
     }
 
     createPyJob = async (provider, configUUID, configName, region, namespace) => {
-        const jobName = `py-job-${configUUID}`;
+        const kubeJobConfig = getKubernetesJobConfig();
+        const jobName = `ec2c-py-job-${configUUID}`;
         const containerName = `py-container-${configUUID}`;
-        const image = "ec2c-python-job:latest";
-        const volumeName = "ec2c-configs-data";
-        const fsGroup = 20 // 1001 / 20
+        const serviceAccountName = kubeJobConfig.serviceAccountName;
+        const imagePullCreds = kubeJobConfig.imagePullCreds;
+        const image = kubeJobConfig.images.py;
+        const imagePullPolicy = kubeJobConfig.imagePullPolicy;
+        const volumeName = kubeJobConfig.appDataVolumeName;
+        const podUserID_User = parseInt(kubeJobConfig.poduserID.user);
+        const podUserID_Group = parseInt(kubeJobConfig.poduserID.group);
 
         let args = []
         if (provider === 'aws') {
@@ -182,22 +206,28 @@ exports.KubernetesHelper = class {
             "backoffLimit": 0,
             "template": {
                 "spec": {
+                    "serviceAccountName": serviceAccountName,
+                    "imagePullSecrets": [
+                        {
+                            "name": imagePullCreds
+                        }
+                    ],
+                    "securityContext": {
+                        "runAsUser": podUserID_User,
+                        "runAsGroup": podUserID_Group,
+                    },
                     "containers": [
                         {
                             "name": containerName,
                             "image": image,
                             "args": args,
-                            "imagePullPolicy": "Never",
+                            "imagePullPolicy": imagePullPolicy,
                             "volumeMounts": [
                                 {
                                     "name": volumeName,
                                     "mountPath": "/data"
                                 }
                             ],
-                            "securityContext": {
-                                "fsGroup": fsGroup,
-                                "allowPrivilegeEscalation": true
-                            },
                             "env": [
                                 {
                                     "name": "ENV",
@@ -231,7 +261,14 @@ exports.KubernetesHelper = class {
         job.spec = jobConfig
 
         try {
-            const delRes = await k8sBatchApi.deleteNamespacedJob(jobName, namespace)
+            const delRes = await k8sBatchApi.deleteNamespacedJob(jobName,
+                namespace,
+                undefined,
+                undefined,
+                2,
+                undefined,
+                'Foreground'
+            )
             await this.sleep(2000);
         } catch (error) {
             console.log(`No jobs named ${jobName}. Proceeding...`)

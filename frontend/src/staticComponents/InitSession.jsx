@@ -10,7 +10,7 @@ import Fade from '@mui/material/Fade';
 import { getMsalToken } from '../helperFunctions/adFunctions';
 import { errorModalStyle } from '../modalStyles';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export class InitSession extends Component {
   constructor(props) {

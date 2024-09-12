@@ -15,7 +15,7 @@ import '../../global.css';
 
 import './ConfirmationModal.css';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class ConfirmationModal extends Component {
     constructor(props) {

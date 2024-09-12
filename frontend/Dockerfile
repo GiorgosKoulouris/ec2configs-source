@@ -23,4 +23,6 @@ LABEL maintainer="George Koulouris (gkoulouris@thecanopener.com)"
 LABEL version="1.0.0"
 LABEL project="EC2 Configs"
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY ./entrypoint.sh .
+
+ENTRYPOINT ["./entrypoint.sh"]

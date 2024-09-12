@@ -12,7 +12,7 @@ import { errorModalStyle } from '../../../modalStyles';
 
 import './deleteUser.css';
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class AddGroup extends Component {
     constructor(props) {

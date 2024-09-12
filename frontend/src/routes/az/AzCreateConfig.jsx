@@ -25,7 +25,7 @@ import axios from 'axios';
 import './azCreateConfig.css';
 
 
-const backendURL = process.env.REACT_APP_BACKEND_URL;
+const backendURL = window.frontendConfig.REACT_APP_BACKEND_URL;
 
 export default class AzCreateConfig extends Component {
   constructor(props) {
