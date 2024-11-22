@@ -34,7 +34,7 @@ def peering(jsonFile, tfFile, configName):
 
     if (peerVpcName == "-- Other --"):
       configText = configText + \
-      'peer_vpc_id   = "' + peerVpcId + '"\n}\n'
+      'peer_vpc_id   = "' + peerVpcId + '"\n\n'
     else:
       configText = configText + \
       'peer_vpc_id   = aws_vpc.' + peerVpcName + '.id\n'
