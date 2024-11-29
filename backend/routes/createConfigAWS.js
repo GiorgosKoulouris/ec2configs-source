@@ -56,41 +56,9 @@ exports.createConfigAWS = async (req, res) => {
     };
 
     try {
-
-        let sql = `SELECT fa_access_key, fa_secret FROM aws_accounts \
-        WHERE (account_name = \'${awsConfig.awsAccount}\');`;
-
-        let awsInfo = await new Promise((resolve) => {
-            let lineLocation = getLineLocation();
-            db.query(sql, function (err, data, fields) {
-                if (!err) {
-                    let awsData = {
-                        awsAccessKey: data[0].fa_access_key,
-                        awsSecret: data[0].fa_secret
-                    }
-                    resolve(awsData)
-                } else {
-                    res.statusCode = 501
-                    var error = {
-                        title: 'Backend server error',
-                        message: 'Could not retreive the appropriate credentials.',
-                        errorID: randomUUID()
-                    }
-                    res.json({
-                        error: error
-                    })
-                    error.details = err;
-                    error.userEmail = req.authInfo.preferred_username;
-                    error.action = "Get the access key of the requested account (/aws)";
-                    error.location = lineLocation;
-                    error.originalUrl = req._parsedUrl.pathname;
-                    error.requestParams = JSON.stringify(req.body);
-                    errorLog(error);
-                }
-            })
-        })
-
-        awsInfo.region = awsConfig.awsRegion;
+        let awsInfo = {
+            region: awsConfig.awsRegion
+        };
 
         for (let i = 0; i < peeringsConfig.length; i++) {
             let peerAccountName = peeringsConfig[i].peerAccountName;

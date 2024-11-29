@@ -45,7 +45,7 @@ exports.createConfigAzure = async (req, res) => {
 
     try {
 
-        let sql = `SELECT tenant_id, subscription_id, application_id, secret_value FROM az_subscriptions WHERE (subscription_name = \'${azConfig.azSubscription}\');`;
+        let sql = `SELECT tenant_id, subscription_id FROM az_subscriptions WHERE (subscription_name = \'${azConfig.azSubscription}\');`;
 
         let azInfo = await new Promise((resolve) => {
             let lineLocation = getLineLocation();

@@ -186,6 +186,108 @@ exports.modifyConfig = async (req, res) => {
         }
 
         if (canExecute) {
+            // Get the credentials
+            let creds = {};
+            if (provider === 'aws') {
+                sql = `SELECT fa_access_key,fa_secret FROM aws_accounts WHERE (account_name = (SELECT account FROM configs WHERE config_uuid=\'${configUUID}\'));`
+                let credentials = await new Promise((resolve) => {
+                    let lineLocation = getLineLocation();
+                    db.query(sql, function (err, data, fields) {
+                        if (!err) {
+                            if (data.length !== 1) {
+                                var error = {
+                                    title: 'Backend server error',
+                                    message: 'Found multiple credentials for this entry.',
+                                    errorID: randomUUID()
+                                }
+                                res.statusCode = 501;
+                                res.json({
+                                    error: error
+                                })
+                                error.details = err;
+                                error.userEmail = userEmail;
+                                error.action = "Config Actions (/modify-config)";
+                                error.location = lineLocation;
+                                error.originalUrl = req._parsedUrl.pathname;
+                                error.requestParams = JSON.stringify(req.query);
+                                errorLog(error);
+                            }
+                            resolve(data)
+                        } else {
+                            var error = {
+                                title: 'Backend server error',
+                                message: 'Failed to retieve saved credentials.',
+                                errorID: randomUUID()
+                            }
+                            res.statusCode = 501;
+                            res.json({
+                                error: error
+                            })
+                            error.details = err;
+                            error.userEmail = userEmail;
+                            error.action = "Config Actions (/modify-config)";
+                            error.location = lineLocation;
+                            error.originalUrl = req._parsedUrl.pathname;
+                            error.requestParams = JSON.stringify(req.query);
+                            errorLog(error);
+                        }
+                    })
+                });
+                creds = {
+                    accessKey: credentials[0].fa_access_key,
+                    secretKey: credentials[0].fa_secret
+                }
+            } else if (provider === 'aws') {
+                sql = `SELECT application_id,secret_value FROM az_subscriptions WHERE (subscription_name = (SELECT account FROM configs WHERE config_uuid=\'${configUUID}\'));`
+                let credentials = await new Promise((resolve) => {
+                    let lineLocation = getLineLocation();
+                    db.query(sql, function (err, data, fields) {
+                        if (!err) {
+                            if (data.length !== 1) {
+                                var error = {
+                                    title: 'Backend server error',
+                                    message: 'Found multiple credentials for this entry.',
+                                    errorID: randomUUID()
+                                }
+                                res.statusCode = 501;
+                                res.json({
+                                    error: error
+                                })
+                                error.details = err;
+                                error.userEmail = userEmail;
+                                error.action = "Config Actions (/modify-config)";
+                                error.location = lineLocation;
+                                error.originalUrl = req._parsedUrl.pathname;
+                                error.requestParams = JSON.stringify(req.query);
+                                errorLog(error);
+                            }
+                            resolve(data)
+                        } else {
+                            var error = {
+                                title: 'Backend server error',
+                                message: 'Failed to retieve saved credentials.',
+                                errorID: randomUUID()
+                            }
+                            res.statusCode = 501;
+                            res.json({
+                                error: error
+                            })
+                            error.details = err;
+                            error.userEmail = userEmail;
+                            error.action = "Config Actions (/modify-config)";
+                            error.location = lineLocation;
+                            error.originalUrl = req._parsedUrl.pathname;
+                            error.requestParams = JSON.stringify(req.query);
+                            errorLog(error);
+                        }
+                    })
+                });
+                creds = {
+                    accessKey: credentials[0].application_id,
+                    secretKey: credentials[0].secret_value
+                }
+            }
+
             let status = "";
             switch (saveMethod) {
                 case "Delete":
@@ -221,10 +323,23 @@ exports.modifyConfig = async (req, res) => {
                             const tfProvidersFolder = getAbsProvidersPath();
                             const tfInitCommand = `cd ${tfConfigFolder} && \
                                 if [ ! -d './.terraform' ]; then terraform providers lock -fs-mirror=${tfProvidersFolder} && terraform init; fi`;
-                            const terraDestroyCommand = `cd ${tfConfigFolder} && \
-                                terraform destroy -no-color -auto-approve 2> ../lastError.log || \
-                                ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
-                                cat ../lastError.log >&2 && exit 1 )`;
+
+                            let terraDestroyCommand = '';
+                            if (provider === 'aws') {
+                                terraDestroyCommand = `cd ${tfConfigFolder} && \
+                                    export AWS_ACCESS_KEY_ID=${creds.accessKey} && export AWS_SECRET_ACCESS_KEY=${creds.secretKey} && \
+                                    terraform destroy -no-color -auto-approve 2> ../lastError.log || \
+                                    ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                    cat ../lastError.log >&2 && exit 1 )`;
+
+                            } else if (provider === 'az') {
+                                terraDestroyCommand = `cd ${tfConfigFolder} && \
+                                    export ARM_CLIENT_ID=${creds.accessKey} && export ARM_CLIENT_SECRET=${creds.secretKey} && \
+                                    terraform destroy -no-color -auto-approve 2> ../lastError.log || \
+                                    ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                    cat ../lastError.log >&2 && exit 1 )`;
+                            }
+
                             const removeDirCommand = `rm -rf ${configFolder}`;
                             await Promise.resolve()
                                 .then(makeExec(tfInitCommand))
@@ -233,7 +348,10 @@ exports.modifyConfig = async (req, res) => {
                         } else if (terraformEnv === "docker") {
                             const allConfigsFolder = absRootFilePath
                             const dockerRunCommand =
-                                `docker run --rm -v "${allConfigsFolder}":/configs --name ec2c-tf-job-${configUUID}-destroy ec2c-terraform-job ${configUUID} destroy`
+                                `docker run --rm \
+                                    -v "${allConfigsFolder}":/configs \
+                                    --name ec2c-tf-job-${configUUID}-destroy \
+                                    ec2c-terraform-job ${configUUID} destroy ${provider} ${creds.accessKey} ${creds.secretKey}`
                             const removeDirCommand = `rm -rf ${configFolder}`;
                             await Promise.resolve()
                                 .then(makeExec(dockerRunCommand))
@@ -244,7 +362,7 @@ exports.modifyConfig = async (req, res) => {
                             kubeHelper.i = new KubernetesHelper()
                             let jobStatus = '';
                             try {
-                                jobStatus = await kubeHelper.i.createTfJob(configUUID, 'destroy', 'default');
+                                jobStatus = await kubeHelper.i.createTfJob(configUUID, 'destroy', 'default', provider, creds.accessKey, creds.secretKey);
                                 kubeHelper.i = null;
                                 delete kubeHelper.i
                                 const removeDirCommand = `rm -rf ${configFolder}`;
@@ -418,10 +536,23 @@ exports.modifyConfig = async (req, res) => {
                                 const tfProvidersFolder = getAbsProvidersPath();
                                 const tfInitCommand = `cd ${tfConfigFolder} && \
                                     if [ ! -d './.terraform' ]; then terraform providers lock -fs-mirror=${tfProvidersFolder} && terraform init; fi`;
-                                const terraPlanCommand = `cd ${tfConfigFolder} && \
-                                    terraform plan -no-color -out=tfplan > ../planLog.txt 2> ../lastError.log || \
-                                    ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
-                                    cat ../lastError.log >&2 && exit 1 )`
+
+                                let terraPlanCommand = '';
+                                if (provider === 'aws') {
+                                    terraPlanCommand = `cd ${tfConfigFolder} && \
+                                        export AWS_ACCESS_KEY_ID=${creds.accessKey} && export AWS_SECRET_ACCESS_KEY=${creds.secretKey} && \
+                                        terraform plan -no-color -out=tfplan > ../planLog.txt 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`
+
+                                } else if (provider === 'az') {
+                                    terraPlanCommand = `cd ${tfConfigFolder} && \
+                                        export ARM_CLIENT_ID=${creds.accessKey} && export ARM_CLIENT_SECRET=${creds.secretKey} && \
+                                        terraform plan -no-color -out=tfplan > ../planLog.txt 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`
+                                }
+
                                 await Promise.resolve()
                                     .then(makeExec(tfInitCommand))
                                     .then(makeExec(terraPlanCommand))
@@ -429,7 +560,10 @@ exports.modifyConfig = async (req, res) => {
                             } else if (terraformEnv === "docker") {
                                 const allConfigsFolder = absRootFilePath
                                 const dockerRunCommand =
-                                    `docker run --rm -v "${allConfigsFolder}":/configs --name ec2c-tf-job-${configUUID}-plan ec2c-terraform-job ${configUUID} plan`
+                                    `docker run --rm \
+                                        -v "${allConfigsFolder}":/configs \
+                                        --name ec2c-tf-job-${configUUID}-plan \
+                                        ec2c-terraform-job ${configUUID} plan ${provider} ${creds.accessKey} ${creds.secretKey}`
                                 await Promise.resolve()
                                     .then(makeExec(dockerRunCommand))
                             } else if (terraformEnv === "kubernetes") {
@@ -438,7 +572,7 @@ exports.modifyConfig = async (req, res) => {
                                 kubeHelper.i = new KubernetesHelper()
                                 let jobStatus = '';
                                 try {
-                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'plan', 'default');
+                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'plan', 'default', provider, creds.accessKey, creds.secretKey);
                                     kubeHelper.i = null;
                                     delete kubeHelper.i
                                 } catch (error) {
@@ -458,17 +592,33 @@ exports.modifyConfig = async (req, res) => {
                                 const tfProvidersFolder = getAbsProvidersPath();
                                 const tfInitCommand = `cd ${tfConfigFolder} && \
                                     if [ ! -d './.terraform' ]; then terraform providers lock -fs-mirror=${tfProvidersFolder} && terraform init; fi`;
-                                const terraApplyCommand = `cd ${tfConfigFolder} && \
-                                    terraform apply -no-color tfplan 2> ../lastError.log || \
-                                    ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
-                                    cat ../lastError.log >&2 && exit 1 )`;
+
+                                let terraApplyCommand = '';
+                                if (provider === 'aws') {
+                                    terraApplyCommand = `cd ${tfConfigFolder} && \
+                                        export AWS_ACCESS_KEY_ID=${creds.accessKey} && export AWS_SECRET_ACCESS_KEY=${creds.secretKey} && \
+                                        terraform apply -no-color tfplan 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`;
+
+                                } else if (provider === 'az') {
+                                    terraApplyCommand = `cd ${tfConfigFolder} && \
+                                        export ARM_CLIENT_ID=${creds.accessKey} && export ARM_CLIENT_SECRET=${creds.secretKey} && \
+                                        terraform apply -no-color tfplan 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`;
+                                }
+
                                 await Promise.resolve()
                                     .then(makeExec(tfInitCommand))
                                     .then(makeExec(terraApplyCommand))
                             } else if (terraformEnv === "docker") {
                                 const allConfigsFolder = absRootFilePath
                                 const dockerRunCommand =
-                                    `docker run --rm -v "${allConfigsFolder}":/configs --name ec2c-tf-job-${configUUID}-apply ec2c-terraform-job ${configUUID} apply`
+                                    `docker run --rm \
+                                        -v "${allConfigsFolder}":/configs \
+                                        --name ec2c-tf-job-${configUUID}-apply \
+                                        ec2c-terraform-job ${configUUID} apply ${provider} ${creds.accessKey} ${creds.secretKey}`
                                 await Promise.resolve()
                                     .then(makeExec(dockerRunCommand))
                             } else if (terraformEnv === "kubernetes") {
@@ -477,7 +627,7 @@ exports.modifyConfig = async (req, res) => {
                                 kubeHelper.i = new KubernetesHelper()
                                 let jobStatus = '';
                                 try {
-                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'apply', 'default');
+                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'apply', 'default', provider, creds.accessKey, creds.secretKey);
                                     kubeHelper.i = null;
                                     delete kubeHelper.i
                                 } catch (error) {
@@ -613,17 +763,33 @@ exports.modifyConfig = async (req, res) => {
                                 const tfProvidersFolder = getAbsProvidersPath();
                                 const tfInitCommand = `cd ${tfConfigFolder} && \
                                     if [ ! -d './.terraform' ]; then terraform providers lock -fs-mirror=${tfProvidersFolder} && terraform init; fi`;
-                                const terraDestroyCommand = `cd ${tfConfigFolder} && \
-                                    terraform destroy -auto-approve 2> ../lastError.log || \
-                                    ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
-                                    cat ../lastError.log >&2 && exit 1 )`;
+
+                                let terraDestroyCommand = '';
+                                if (provider === 'aws') {
+                                    terraDestroyCommand = `cd ${tfConfigFolder} && \
+                                        export AWS_ACCESS_KEY_ID=${creds.accessKey} && export AWS_SECRET_ACCESS_KEY=${creds.secretKey} && \
+                                        terraform destroy -auto-approve 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`;
+
+                                } else if (provider === 'az') {
+                                    terraDestroyCommand = `cd ${tfConfigFolder} && \
+                                        export ARM_CLIENT_ID=${creds.accessKey} && export ARM_CLIENT_SECRET=${creds.secretKey} && \
+                                        terraform destroy -auto-approve 2> ../lastError.log || \
+                                        ( echo "\n\n\`date\`" >> ../errorLog.log && sed 's/^/  /g' ../lastError.log >> ../errorLog.log && \
+                                        cat ../lastError.log >&2 && exit 1 )`;
+                                }
+
                                 await Promise.resolve()
                                     .then(makeExec(tfInitCommand))
                                     .then(makeExec(terraDestroyCommand))
                             } else if (terraformEnv === "docker") {
                                 const allConfigsFolder = absRootFilePath
                                 const dockerRunCommand =
-                                    `docker run --rm -v "${allConfigsFolder}":/configs --name ec2c-tf-job-${configUUID}-destroy ec2c-terraform-job ${configUUID} destroy`
+                                    `docker run --rm \
+                                        -v "${allConfigsFolder}":/configs \
+                                        --name ec2c-tf-job-${configUUID}-destroy \
+                                        ec2c-terraform-job ${configUUID} destroy ${provider} ${creds.accessKey} ${creds.secretKey}`
                                 await Promise.resolve()
                                     .then(makeExec(dockerRunCommand))
                             } else if (terraformEnv === "kubernetes") {
@@ -632,7 +798,7 @@ exports.modifyConfig = async (req, res) => {
                                 kubeHelper.i = new KubernetesHelper()
                                 let jobStatus = '';
                                 try {
-                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'destroy', 'default');
+                                    jobStatus = await kubeHelper.i.createTfJob(configUUID, 'destroy', 'default', provider, creds.accessKey, creds.secretKey);
                                     kubeHelper.i = null;
                                     delete kubeHelper.i
                                 } catch (error) {

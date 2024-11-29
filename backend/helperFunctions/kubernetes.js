@@ -63,7 +63,7 @@ exports.KubernetesHelper = class {
         });
     }
 
-    createTfJob = async (configUUID, action, namespace) => {
+    createTfJob = async (configUUID, action, namespace, provider, accessKey, secretKey) => {
         const kubeJobConfig = getKubernetesJobConfig();
         const jobName = `ec2c-tf-job-${configUUID}-${action}`;
         const serviceAccountName = kubeJobConfig.serviceAccountName;
@@ -96,7 +96,10 @@ exports.KubernetesHelper = class {
                             "image": image,
                             "args": [
                                 configUUID,
-                                action
+                                action,
+                                provider,
+                                accessKey,
+                                secretKey
                             ],
                             "imagePullPolicy": imagePullPolicy,
                             "volumeMounts": [

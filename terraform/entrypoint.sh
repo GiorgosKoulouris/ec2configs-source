@@ -1,14 +1,23 @@
 #!/bin/sh
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 5 ]; then
     echo "not correct number of arguements. exiting..."
     exit 1
 fi
 
-# configFolder checks
 configUUID="$1"
 configFolder="/configs/$configUUID/terraform"
+cloudProvider="$3"
 
+if [ "$cloudProvider" == 'aws' ]; then
+    export AWS_ACCESS_KEY_ID="$4"
+    export AWS_SECRET_ACCESS_KEY="$5"
+elif [ "$cloudProvider" == 'az' ]; then
+    export ARM_CLIENT_ID="$4"
+    export ARM_CLIENT_SECRET="$5"
+fi
+
+# configFolder checks
 if [ ! -d $configFolder ]; then
     echo "directory does not exist. exiting..."
     exit 1

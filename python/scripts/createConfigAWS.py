@@ -7,14 +7,10 @@ def aws(jsonFile, tfFile):
   with open(jsonFile, 'r') as f:
       config = json.load(f)
 
-  accessKey = config["awsAccessKey"]
-  secretKey = config["awsSecret"]
   region    = config["region"]
 
   configText = '\
   provider "aws" {\n\
-    access_key = "' + accessKey + '"\n\
-    secret_key = "' + secretKey + '"\n\
     region     = "' + region + '"\n\
   }'
 

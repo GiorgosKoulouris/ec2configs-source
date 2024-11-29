@@ -7,15 +7,23 @@ usage() {
     echo "Use this script to build the docker images with the proper naming and tags"
     echo
     echo "Options:"
-    echo "    --privateECR      Uploads the images to a private ECR"
-    echo "    --publicECR       Uploads the images to public ECR"
-    echo "    --both            Uploads the images to both private and public ECR"
-    echo "    -h, --help        Prints this message"
+    echo "$0 --privateECR   Uploads the images to a private ECR"
+    echo "$0 --publicECR    Uploads the images to public ECR"
+    echo "$0 --both         Uploads the images to both private and public ECR"
+    echo "$0 --no-build     Skip building the images, only push to ECR"
+    echo "$0 --help         Prints this message"
+    echo "$0 -h             Prints this message"
     echo
 }
 
 UPLOAD_TO_ECR='false'
 UPLOAD_TO_PUBLIC_ECR='false'
+BUILD='true'
+
+[ $# -eq 0 ] && {
+    usage
+    exit 0
+}
 
 for arg in "$@"; do
     case "$arg" in
@@ -42,6 +50,10 @@ for arg in "$@"; do
         UPLOAD_TO_ECR='true'
         UPLOAD_TO_PUBLIC_ECR='true'
         BUILD_FAILED='false'
+        ;;
+    --no-build)
+        shift
+        BUILD='false'
         ;;
     esac
 done
@@ -91,16 +103,17 @@ MAIN_DIR="$(dirname "$SCRIPT_DIR")"
 
 for i in "${!COMPONENT_NAMES[@]}"; do
     NAME="${COMPONENT_NAMES[$i]}"
-    PATH="${COMPONENT_PATHS[$i]}"
+    DIRECTORY="${COMPONENT_PATHS[$i]}"
 
-    cd "$MAIN_DIR/$PATH"
+    if [ "$BUILD" == 'true' ]; then
+        echo "Building image $NAME..."
 
-    BUILD_FAILED='false'
-
-    echo "Building image $NAME..."
-    docker build -t "$NAME:$VERSION" . && \
-    docker tag $NAME:$VERSION $NAME:latest || \
-    BUILD_FAILED='true'
+        cd "$MAIN_DIR/$DIRECTORY"
+        BUILD_FAILED='false'
+        docker build -t "$NAME:$VERSION" . &&
+            docker tag $NAME:$VERSION $NAME:latest ||
+            BUILD_FAILED='true'
+    fi
 
     if [[ "$UPLOAD_TO_ECR" == 'true' && "$BUILD_FAILED" == 'false' ]]; then
 
